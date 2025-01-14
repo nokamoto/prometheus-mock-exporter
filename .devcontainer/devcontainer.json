@@ -1,0 +1,4 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "postStartCommand": "go install github.com/magefile/mage@latest"
+}
