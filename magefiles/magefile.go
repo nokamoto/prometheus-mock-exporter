@@ -7,14 +7,14 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/magefile/mage/mg" // mg contains helpful utility functions, like Deps
+	"github.com/magefile/mage/mg"
 )
 
 var Default = All
 
 // All runs all the tasks
 func All() error {
-	mg.SerialDeps(Tidy, Format)
+	mg.SerialDeps(Tidy, Yamlfmt, BufGenerate, Format)
 	return nil
 }
 
@@ -54,4 +54,37 @@ func Goimports() error {
 	mg.Deps(InstallGoimports)
 	fmt.Println("Running goimports...")
 	return exec.Command("goimports", "-w", ".").Run()
+}
+
+// InstallBuf installs the buf tool
+func InstallBuf() error {
+	fmt.Println("Installing buf...")
+	return exec.Command("go", "install", "github.com/bufbuild/buf/cmd/buf@latest").Run()
+}
+
+// BufLint runs the buf format tool
+func BufFormat() error {
+	mg.Deps(InstallBuf)
+	fmt.Println("Running buf format...")
+	return exec.Command("buf", "format", "-w", "proto").Run()
+}
+
+// BufGenerate runs the buf generate tool
+func BufGenerate() error {
+	mg.Deps(BufFormat)
+	fmt.Println("Running buf generate...")
+	return exec.Command("buf", "generate", "--clean", "--template", "build/buf.gen.yaml").Run()
+}
+
+// InstallYamlfmt installs the yamlfmt tool
+func InstallYamlfmt() error {
+	fmt.Println("Installing yamlfmt...")
+	return exec.Command("go", "install", "github.com/google/yamlfmt/cmd/yamlfmt@latest").Run()
+}
+
+// Yamlfmt runs the yamlfmt tool
+func Yamlfmt() error {
+	mg.Deps(InstallYamlfmt)
+	fmt.Println("Running yamlfmt...")
+	return exec.Command("yamlfmt", ".").Run()
 }
