@@ -8,13 +8,14 @@ import (
 	"os/exec"
 
 	"github.com/magefile/mage/mg"
+	"github.com/magefile/mage/sh"
 )
 
 var Default = All
 
 // All runs all the tasks
 func All() error {
-	mg.SerialDeps(Tidy, Yamlfmt, BufGenerate, Format)
+	mg.SerialDeps(Tidy, Yamlfmt, BufGenerate, Format, GoTest)
 	return nil
 }
 
@@ -87,4 +88,10 @@ func Yamlfmt() error {
 	mg.Deps(InstallYamlfmt)
 	fmt.Println("Running yamlfmt...")
 	return exec.Command("yamlfmt", ".").Run()
+}
+
+// GoTest runs go test
+func GoTest() error {
+	fmt.Println("Running go test...")
+	return sh.RunV("go", "test", "./...")
 }
