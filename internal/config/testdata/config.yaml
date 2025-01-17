@@ -1,0 +1,6 @@
+counters:
+  - id: foo
+    namespace: bar
+    name: baz
+    help: qux
+    labels: ["quux"]

@@ -4,4 +4,14 @@ package proto;
 
 option go_package = "github.com/nokamoto/prometheus-mock-exporter/pkg/proto";
 
-message Config {}
+message Counter {
+  string id = 1;
+  string namespace = 2;
+  string name = 3;
+  string help = 4;
+  repeated string labels = 5;
+}
+
+message Config {
+  repeated Counter counters = 1;
+}
