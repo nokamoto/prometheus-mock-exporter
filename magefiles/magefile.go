@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"slices"
+	"strings"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -93,11 +95,25 @@ func Yamlfmt() error {
 
 // GoTest runs go test
 func GoTest() error {
+	args := []string{"test"}
+
+	// set coverprofile if GO_TEST_COVERPROFILE is set
 	coverprofile := os.Getenv("GO_TEST_COVERPROFILE")
-	args := []string{"test", "./..."}
 	if coverprofile != "" {
 		args = append(args, "-coverprofile", coverprofile)
 	}
+
+	// list all packages except code generated files
+	out, err := sh.Output("go", "list", "./...")
+	if err != nil {
+		return fmt.Errorf("failed to list packages: %w", err)
+	}
+	packages := strings.Split(out, "\n")
+	packages = slices.DeleteFunc(packages, func(s string) bool {
+		return strings.HasSuffix(s, "/pkg/proto")
+	})
+	args = append(args, packages...)
+
 	fmt.Println("Running go test...")
 	return sh.RunV("go", args...)
 }
