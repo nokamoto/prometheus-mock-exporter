@@ -20,7 +20,17 @@ func Test_LoadYamlConfig(t *testing.T) {
 		{
 			name:     "ok",
 			filename: "testdata/config.yaml",
-			want:     &proto.Config{},
+			want: &proto.Config{
+				Counters: []*proto.Counter{
+					{
+						Id:        "foo",
+						Namespace: "bar",
+						Name:      "baz",
+						Help:      "qux",
+						Labels:    []string{"quux"},
+					},
+				},
+			},
 		},
 		{
 			name:     "failed if file not found",
