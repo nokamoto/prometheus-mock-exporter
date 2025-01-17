@@ -1,8 +1,10 @@
 package metrics
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/nokamoto/prometheus-mock-exporter/pkg/proto"
 	"github.com/prometheus/client_golang/prometheus"
@@ -50,4 +52,17 @@ func (m *Mock) MustRegister(registry *prometheus.Registry) {
 	for _, counter := range m.counters {
 		registry.MustRegister(counter)
 	}
+}
+
+// Run starts all sequences concurrently until the given context is canceled.
+func (m *Mock) Run(ctx context.Context) {
+	var wg sync.WaitGroup
+	for _, s := range m.sequences {
+		wg.Add(1)
+		go func ()  {
+			defer wg.Done()
+			s.run(ctx, m)
+		}()
+	}
+	wg.Wait()
 }
