@@ -9,7 +9,8 @@ import (
 )
 
 type Mock struct {
-	counters map[string]*prometheus.CounterVec
+	counters  map[string]*prometheus.CounterVec
+	sequences []*sequence
 }
 
 var errDuplicateID = errors.New("duplicate id")
@@ -33,6 +34,12 @@ func New(config *proto.Config) (*Mock, error) {
 			Name:      counter.GetName(),
 			Help:      counter.GetHelp(),
 		}, counter.GetLabels())
+	}
+
+	for _, s := range config.GetSequences() {
+		mock.sequences = append(mock.sequences, &sequence{
+			sequence: s,
+		})
 	}
 
 	return mock, nil
