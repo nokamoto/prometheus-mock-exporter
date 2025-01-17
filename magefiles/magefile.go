@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 
 	"github.com/magefile/mage/mg"
@@ -92,6 +93,11 @@ func Yamlfmt() error {
 
 // GoTest runs go test
 func GoTest() error {
+	coverprofile := os.Getenv("GO_TEST_COVERPROFILE")
+	args := []string{"test", "./..."}
+	if coverprofile != "" {
+		args = append(args, "-coverprofile", coverprofile)
+	}
 	fmt.Println("Running go test...")
-	return sh.RunV("go", "test", "./...")
+	return sh.RunV("go", args...)
 }
