@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package proto;
 
+import "google/protobuf/duration.proto";
+
 option go_package = "github.com/nokamoto/prometheus-mock-exporter/pkg/proto";
 
 message Counter {
@@ -12,6 +14,22 @@ message Counter {
   repeated string labels = 5;
 }
 
+message CounterAdd {
+  string id = 1;
+  repeated string labels = 2;
+  double value = 3;
+}
+
+message Sequence {
+  string name = 1;
+  string description = 2;
+  // The initial delay before the first step is executed.
+  google.protobuf.Duration initial_delay = 3;
+  // The sequence of metric updates.
+  repeated CounterAdd steps = 4;
+}
+
 message Config {
   repeated Counter counters = 1;
+  repeated Sequence sequences = 2;
 }

@@ -1,15 +1,18 @@
 package metrics
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/nokamoto/prometheus-mock-exporter/pkg/proto"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Mock struct {
-	counters map[string]*prometheus.CounterVec
+	counters  map[string]*prometheus.CounterVec
+	sequences []*sequence
 }
 
 var errDuplicateID = errors.New("duplicate id")
@@ -35,6 +38,12 @@ func New(config *proto.Config) (*Mock, error) {
 		}, counter.GetLabels())
 	}
 
+	for _, s := range config.GetSequences() {
+		mock.sequences = append(mock.sequences, &sequence{
+			sequence: s,
+		})
+	}
+
 	return mock, nil
 }
 
@@ -43,4 +52,17 @@ func (m *Mock) MustRegister(registry *prometheus.Registry) {
 	for _, counter := range m.counters {
 		registry.MustRegister(counter)
 	}
+}
+
+// Run starts all sequences concurrently until the given context is canceled.
+func (m *Mock) Run(ctx context.Context) {
+	var wg sync.WaitGroup
+	for _, s := range m.sequences {
+		wg.Add(1)
+		go func ()  {
+			defer wg.Done()
+			s.run(ctx, m)
+		}()
+	}
+	wg.Wait()
 }
