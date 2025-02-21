@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	buf.build/go/protoyaml v0.3.1
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/magefile/mage v1.15.0
 	github.com/prometheus/client_golang v1.20.5
 	google.golang.org/protobuf v1.36.3
